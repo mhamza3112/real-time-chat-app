@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real-Time Chat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<div class="chat-container">
+  <h2>Intern Chat System</h2>
+
+  <input id="user" placeholder="Your ID" />
+  <input id="receiver" placeholder="Receiver ID" />
+
+  <div id="chatBox"></div>
+
+  <div class="input-area">
+    <input id="message" placeholder="Type message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+const socket = io("http://localhost:5000");
+
+const user = document.getElementById("user");
+const chatBox = document.getElementById("chatBox");
+
+socket.on("connect", () => {
+  console.log("Connected:", socket.id);
+});
+
+function sendMessage() {
+  const data = {
+    sender: user.value,
+    receiver: document.getElementById("receiver").value,
+    message: document.getElementById("message").value,
+  };
+
+  socket.emit("send_message", data);
+
+  addMessage("You", data.message);
+}
+
+socket.on("receive_message", (data) => {
+  addMessage(data.sender, data.message);
+});
+
+function addMessage(sender, msg) {
+  const div = document.createElement("div");
+  div.classList.add("msg");
+  div.innerText = `${sender}: ${msg}`;
+  chatBox.appendChild(div);
+}
+</script>
+
+</body>
+</html>
